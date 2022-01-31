@@ -20,6 +20,32 @@ cc_library {
     },
 }
 
+cc_library {
+    name: "libtinyalsa_sec",
+    vendor: true,
+    vndk: {
+        enabled: true,
+        extends: "libtinyalsa",
+    },
+    srcs: [
+        "mixer.c",
+        "pcm.c",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wno-macro-redefined",
+        "-D__ANDROID_VNDK_SEC__",
+    ],
+    export_include_dirs: ["include"],
+    local_include_dirs: ["include"],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
 cc_binary {
     name: "tinyplay",
     host_supported: true,

@@ -71,6 +71,16 @@ struct pcm;
 /* TLV header size*/
 #define TLV_HEADER_SIZE (2 * sizeof(unsigned int))
 
+#ifdef __ANDROID_VNDK_SEC__
+/* Mask for mixer_read_event()
+ * It should be same with SNDRV_CTL_EVENT_MASK_* in asound.h.
+ */
+#define MIXER_EVENT_VALUE    (1 << 0)
+#define MIXER_EVENT_INFO     (1 << 1)
+#define MIXER_EVENT_ADD      (1 << 2)
+#define MIXER_EVENT_TLV      (1 << 3)
+#define MIXER_EVENT_REMOVE   (~0U)
+#endif
 /* Bit formats */
 enum pcm_format {
     PCM_FORMAT_INVALID = -1,
@@ -317,6 +327,9 @@ int mixer_ctl_get_range_max(struct mixer_ctl *ctl);
 int mixer_subscribe_events(struct mixer *mixer, int subscribe);
 int mixer_wait_event(struct mixer *mixer, int timeout);
 int mixer_consume_event(struct mixer *mixer);
+#ifdef __ANDROID_VNDK_SEC__
+struct snd_ctl_event *mixer_read_event(struct mixer *mixer, unsigned int mask);
+#endif
 
 #if defined(__cplusplus)
 }  /* extern "C" */

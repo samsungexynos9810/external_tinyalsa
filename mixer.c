@@ -678,3 +678,37 @@ int mixer_consume_event(struct mixer *mixer) {
     // the interface greatly.
     return (count >= 0) ? 0 : -errno;
 }
+
+#ifdef __ANDROID_VNDK_SEC__
+/** Wait and read an mixer event.
+ * @param mixer A mixer handle.
+ * @param mask bitwase or of MIXER_EVENT_*
+ * @returns On success, address of snd_ctl_event.
+ *  On failure, 0.
+ * @ingroup libtinyalsa-mixer
+ */
+struct snd_ctl_event *mixer_read_event(struct mixer *mixer, unsigned int mask)
+{
+    struct snd_ctl_event *ev;
+
+    if (!mixer)
+        return 0;
+
+    ev = calloc(1, sizeof(*ev));
+    if (!ev)
+        return 0;
+
+    while (read(mixer->fd, ev, sizeof(*ev)) > 0) {
+        if (ev->type != SNDRV_CTL_EVENT_ELEM)
+            continue;
+
+        if (!(ev->data.elem.mask & mask))
+            continue;
+
+        return ev;
+    }
+
+    free(ev);
+    return 0;
+}
+#endif
